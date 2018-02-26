@@ -53,7 +53,7 @@ keys.remove(start)
 keys.append(end)
 
 #First, we make an FSA that utilizes P(T|T)
-f = open("ptgt.fsa.txt","w")
+f = open("ptgt.fst.txt","w")
 
 for tag in Ptgt[start]:
 	f.write("{} {} {} {}\n".format(0, keys.index(tag)+1, tag, -Ptgt[start][tag]))
@@ -109,7 +109,7 @@ f.close()
 with open('data/pos_test.txt', 'r') as infile:
     index = 1
     for line in infile:
-        f = open('sents/sent{}.fsa.txt'.format(index), 'w')
+        f = open('sents/sent{}.fst.txt'.format(index), 'w')
         answer = open('answers/sent{}.fst.txt'.format(index),'w')
         i = 0
         for wst in line.strip().split(' '):
