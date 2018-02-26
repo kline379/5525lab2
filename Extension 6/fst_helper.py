@@ -1,8 +1,11 @@
 from collections import Counter as Counter
 import copy
 import math
+
+#First we simply calculate the probabilities from the train text.
 Pwgt = dict()
 Ptgt = dict()
+#Accounts for unknown words or tags.
 unknown = "<UKN>"
 with open('data/pos_train.txt', 'r') as infile:
     for line in infile:
@@ -49,7 +52,7 @@ keys = list(Ptgt.keys())
 keys.remove(start)
 keys.append(end)
 
-
+#First, we make an FSA that utilizes P(T|T)
 f = open("ptgt.fsa.txt","w")
 
 for tag in Ptgt[start]:
@@ -61,8 +64,9 @@ for prev_tag in Ptgt:
 			f.write("{} {} {} {}\n".format(keys.index(prev_tag)+1, keys.index(tag)+1, tag, -Ptgt[prev_tag][tag]))
 		f.write("{}\n".format(keys.index(prev_tag)+1))
 f.close()
-f = open("pwgt.fst.txt","w")
 
+#Then an FST that utilizes P(W|T)
+f = open("pwgt.fst.txt","w")
 keys = list(Pwgt.keys())
 for tag in Pwgt:
 	for word in Pwgt[tag]:
@@ -70,8 +74,9 @@ for tag in Pwgt:
 			word = "-"
 		f.write("{} {} {} {} {}\n".format(0, 0, word, tag, -Pwgt[tag][word]))
 f.write("0\n")
-
 f.close()
+
+#Produces the tag vocabulary
 f = open("tags.voc","w")
 index=0
 tagset = set()
@@ -83,6 +88,7 @@ f.write("END {}\n".format(index))
 f.write("{} {}\n".format(unknown, index+1))
 f.close()
 
+#Produces the word vocabulary
 f = open("words.voc","w")
 wordset = set()
 wordset.add(unknown)
@@ -97,6 +103,9 @@ for word in wordset:
 	index = index + 1
 f.close()
 
+#Translates the test data into one FSA and one FST for each line.
+#The FSA is input for our labeler FST.
+#The FST is a labeled and used to compare results later on.
 with open('data/pos_test.txt', 'r') as infile:
     index = 1
     for line in infile:
